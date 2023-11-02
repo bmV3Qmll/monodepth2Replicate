@@ -169,7 +169,7 @@ class MonoDataset(data.Dataset):
 
             inv_K = np.linalg.pinv(K)
 
-            inputs[("K", scale)] = torch.from_numpy(K)
+            inputs[("K", scale)] = torch.from_numpy(K) 
             inputs[("inv_K", scale)] = torch.from_numpy(inv_K)
 
         if do_color_aug:
