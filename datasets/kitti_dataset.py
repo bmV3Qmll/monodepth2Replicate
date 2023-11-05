@@ -132,3 +132,32 @@ class KITTIDepthDataset(KITTIDataset):
             depth_gt = np.fliplr(depth_gt)
 
         return depth_gt
+
+# Add benchmark data loader for evaluation
+class KITTIBenchmarkDataset(KITTIDataset):
+    def __init__(self, *args, **kwargs):
+        super(KITTIBenchmarkDataset, self).__init__(*args, **kwargs)
+
+    def get_image_path(self, folder, frame_index, side):
+        f_str = "{:010d}.png".format(frame_index)
+        image_path = os.path.join(
+            self.data_path,
+            "image",
+            f_str)
+        return image_path
+
+    def get_depth(self, folder, frame_index, side, do_flip):
+        f_str = "{:010d}.png".format(frame_index)
+        depth_path = os.path.join(
+            self.data_path,
+            "velodyne_raw",
+            f_str)
+
+        depth_gt = pil.open(depth_path)
+        depth_gt = depth_gt.resize(self.full_res_shape, pil.NEAREST)
+        depth_gt = np.array(depth_gt).astype(np.float32) / 256
+
+        if do_flip:
+            depth_gt = np.fliplr(depth_gt)
+
+        return depth_gt

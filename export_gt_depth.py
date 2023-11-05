@@ -28,7 +28,7 @@ def export_gt_depths_kitti():
                         type=str,
                         help='which split to export gt from',
                         required=True,
-                        choices=["eigen", "eigen_benchmark"])
+                        choices=["eigen", "eigen_benchmark", "benchmark", "nyu"])
     opt = parser.parse_args()
 
     split_folder = os.path.join(os.path.dirname(__file__), "splits", opt.split)
@@ -39,7 +39,7 @@ def export_gt_depths_kitti():
     gt_depths = []
     for line in lines:
 
-        folder, frame_id, _ = line.split()
+        folder, frame_id, *_ = line.split() + [None]
         frame_id = int(frame_id)
 
         if opt.split == "eigen":
@@ -50,6 +50,14 @@ def export_gt_depths_kitti():
         elif opt.split == "eigen_benchmark":
             gt_depth_path = os.path.join(opt.data_path, folder, "proj_depth",
                                          "groundtruth", "image_02", "{:010d}.png".format(frame_id))
+            gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256
+        elif opt.split == "benchmark":
+            gt_depth_path = os.path.join(opt.data_path, "depth_selection",
+                                         "test_depth_completion_anonymous", "velodyne_raw", "{:010d}.png".format(frame_id))
+            gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256
+        elif opt.split == "nyu":
+            gt_depth_path = os.path.join(opt.data_path, "depths",
+                                         "gt_{}.jpg".format(frame_id))
             gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256
 
         gt_depths.append(gt_depth.astype(np.float32))
